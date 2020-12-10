@@ -64,7 +64,7 @@ def train(train_dataloader, model, epoch, loss_func,
             save_ckpt(train_args, step, epoch, model, optimizer.optimizer, scheduler, val_err[0])
 
 
-        # break
+        break
 
 def val(val_dataloader, model):
     """

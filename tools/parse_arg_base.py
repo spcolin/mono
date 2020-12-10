@@ -5,6 +5,11 @@ class BaseOptions():
         self.initialized = False
 
     def initialize(self, parser):
+
+        # ----------------added args---------------------
+        parser.add_argument('--anno_pack_path',  help='Path to package containing annotation json files',default="/home/colin/anno")
+        # ----------------added end----------------------
+
         parser.add_argument('--dataroot',  help='Path to dataset',default="datasets/NYUDV2")
         parser.add_argument('--batchsize', type=int, default=2, help='Batch size')
         # not clear

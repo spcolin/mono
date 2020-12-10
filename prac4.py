@@ -1,12 +1,17 @@
-import torch
-from lib.models import RD_loss
+"""
+test for the depth map magnitude
+"""
 
+import torch,torchvision
+from PIL import Image
 
-RD_Loss=RD_loss.RD_loss()
+depth_path="/home/colin/p_nyu/home_office_0001_out/1.png"
 
+depth_img=Image.open(depth_path)
 
-pred=torch.randn(3,1,50,50)
+print(depth_img.getpixel((0,0)))
+print(depth_img.getpixel((0,0))/65535)
 
-gt=torch.randn(3,1,50,50)
+tf=torchvision.transforms.ToTensor()(depth_img)
 
-loss=RD_Loss(pred,gt)
+print(tf[0][0][0]/65535)
