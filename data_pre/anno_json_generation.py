@@ -3,7 +3,7 @@ generate the json file used for dataloader.
 The annotation json file is of following format:
 [{'rgb_path':'the path to the rgb image','depth_path':'the path to the depth map img'},{},{},{},.......]
 """
-import os
+import os,json
 
 def json_generate(data_path):
     """
@@ -45,6 +45,13 @@ def json_generate(data_path):
 
 path="/home/colin/p_nyu/"
 a=json_generate(path)
+
+saved_path="/home/colin/anno/train_annotations.json"
+f=open(saved_path,'w')
+
+json.dump(a,f)
+
+f.close()
 
 
 

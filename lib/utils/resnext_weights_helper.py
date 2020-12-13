@@ -10,7 +10,13 @@ def load_pretrained_imagenet_resnext_weights(model):
         num_layers: 50 for res50 and so on.
         model: the generalized rcnnn module
     """
-    weights_file = os.path.join(cfg.ROOT_DIR, cfg.MODEL.MODEL_REPOSITORY, 'ResNeXt-ImageNet', cfg.MODEL.PRETRAINED_WEIGHTS)
+    # weights_file = os.path.join(cfg.ROOT_DIR, cfg.MODEL.MODEL_REPOSITORY, 'ResNeXt-ImageNet', cfg.MODEL.PRETRAINED_WEIGHTS)
+
+    weights_file = cfg.MODEL.PRETRAINED_WEIGHTS
+    # print('*********************')
+    # print("pretrained model path:",weights_file)
+    # print('---------------------')
+
     pretrianed_state_dict = convert_state_dict(torch.load(weights_file))
 
     model_state_dict = model.state_dict()
