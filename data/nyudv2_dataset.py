@@ -48,9 +48,17 @@ class NYUDV2Dataset():
             self.A = AB['rgbs']
             self.B = AB['depths']
             self.depth_normalize = 10.0
+            # print(".mat way")
+
         else:
+
+            # print("image way")
+
             self.A = None
             self.B = None
+
+            #scale of depth
+            self.depth_normalize=65535
         A_list = [os.path.join(cfg.ROOT_DIR, self.opt.dataroot, self.opt.phase_anno, AB_anno[i]['rgb_path']) for i in range(len(AB_anno))]
         B_list = [os.path.join(cfg.ROOT_DIR, self.opt.dataroot, self.opt.phase_anno, AB_anno[i]['depth_path']) for i in range(len(AB_anno))]
         logger.info('Loaded NYUDV2 data!')
@@ -84,9 +92,22 @@ class NYUDV2Dataset():
         else:
             A = self.A[anno_index]  # C*W*H
             B = self.B[anno_index] / self.depth_normalize # the max depth is 10m
+            # print("*********************")
+            # print(A.shape)
+            # print(B.shape)
+            # print("---------------------")
             A = A.transpose((2, 1, 0))  # H * W * C
             B = B.transpose((1, 0))  # H * W
             A = A[:, :, ::-1].copy() #rgb -> bgr
+
+        # print("*********************")
+        # print(A.shape)
+        # print(B.shape)
+        # print("---------------------")
+        # print("*********************")
+        # print("depth value:",B[50][50])
+        # print("---------------------")
+
 
         flip_flg, crop_size, pad, resize_ratio = self.set_flip_pad_reshape_crop()
 

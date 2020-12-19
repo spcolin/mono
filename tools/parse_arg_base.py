@@ -8,6 +8,7 @@ class BaseOptions():
 
         # ----------------added args---------------------
         parser.add_argument('--anno_pack_path',  help='Path to package containing annotation json files',default="/home/colin/anno")
+        # parser.add_argument('--anno_pack_path',  help='Path to package containing annotation json files',default="/home/colin/papercode/VNL_Monocular_Depth_Prediction-master/datasets/NYUDV2/annotations")
         # ----------------added end----------------------
 
         parser.add_argument('--dataroot',  help='Path to dataset',default="datasets/NYUDV2")
