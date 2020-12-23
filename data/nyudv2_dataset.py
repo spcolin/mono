@@ -7,6 +7,22 @@ import scipy.io as sio
 from lib.core.config import cfg
 import torchvision.transforms as transforms
 from lib.utils.logging import setup_logging
+import time
+from functools import wraps
+
+def loop_until_success(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        for i in range(600):
+            try:
+                ret = func(*args, **kwargs)
+                break
+            except OSError:
+                time.sleep(1)
+        return ret
+    return wrapper
+
+
 
 logger = setup_logging(__name__)
 
@@ -27,7 +43,8 @@ class NYUDV2Dataset():
         # print("-----")
         self.A_paths, self.B_paths, self.AB_anno = self.getData()
         self.data_size = len(self.AB_anno)
-        self.uniform_size = (480, 640)
+        # self.uniform_size = (480, 640)
+        self.uniform_size = (427, 561)
 
     def getData(self):
 
@@ -121,6 +138,7 @@ class NYUDV2Dataset():
         A_resize = A_resize[::-1, :, :]
 
         # to torch, normalize
+        # print("img shape:",A_resize.shape)
         A_resize = self.scale_torch(A_resize, 255.)
         B_resize = self.scale_torch(B_resize, resize_ratio)
 
@@ -144,7 +162,8 @@ class NYUDV2Dataset():
         flip_prob = np.random.uniform(0.0, 1.0)
         flip_flg = True if flip_prob > 0.5 and 'train' in self.opt.phase else False
 
-        raw_size = np.array([cfg.DATASET.CROP_SIZE[1], 416, 448, 480, 512, 544, 576, 608, 640])
+        # raw_size = np.array([cfg.DATASET.CROP_SIZE[1], 416, 448, 480, 512, 544, 576, 608, 640])
+        raw_size = np.array([cfg.DATASET.CROP_SIZE[1], 416, 448, 480, 512, 544, 561, 608, 640])
         size_index = np.random.randint(0, 9) if 'train' in self.opt.phase else 8
 
         # pad
@@ -202,7 +221,10 @@ class NYUDV2Dataset():
         invalid_mask = depth < 0.
         depth[depth < cfg.DATASET.DEPTH_MIN] = cfg.DATASET.DEPTH_MIN
         depth[depth > cfg.DATASET.DEPTH_MAX] = cfg.DATASET.DEPTH_MAX
+
+        # calculate the bin for a certain depth value
         bins = ((torch.log10(depth) - cfg.DATASET.DEPTH_MIN_LOG) / cfg.DATASET.DEPTH_BIN_INTERVAL).to(torch.int)
+        # print("bins shape:",bins.shape)
         bins[invalid_mask] = cfg.MODEL.DECODER_OUTPUT_C + 1
         bins[bins == cfg.MODEL.DECODER_OUTPUT_C] = cfg.MODEL.DECODER_OUTPUT_C - 1
         depth[invalid_mask] = -1.0

@@ -30,7 +30,7 @@ class TrainingStats(object):
         def create_smoothed_value():
             return SmoothedValue(self.filter_size)
         self.smoothed_losses = defaultdict(create_smoothed_value)
-        self.smoothed_metrics = defaultdict(create_smoothed_value)
+        # self.smoothed_metrics = defaultdict(create_smoothed_value)
         self.smoothed_total_loss = SmoothedValue(self.filter_size)
 
     def IterTic(self):

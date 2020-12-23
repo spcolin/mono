@@ -33,11 +33,12 @@ def json_generate(data_path):
         rgb_list=os.listdir(rgb_path)
         depth_list=os.listdir(depth_path)
 
-        rgb_list.sort()
-        depth_list.sort()
+        # rgb_list.sort()
+        # depth_list.sort()
         
         for j in range(len(rgb_list)):
-            json_list.append({"rgb_path":rgb_path+"/"+rgb_list[j],"depth_path":depth_path+"/"+depth_list[j]})
+            if rgb_list[j] in depth_list:
+                json_list.append({"rgb_path":rgb_path+"/"+rgb_list[j],"depth_path":depth_path+"/"+rgb_list[j]})
             
     
     return json_list
@@ -45,6 +46,8 @@ def json_generate(data_path):
 
 path="/home/colin/p_nyu/"
 a=json_generate(path)
+
+print(len(a))
 
 saved_path="/home/colin/anno/train_annotations.json"
 f=open(saved_path,'w')

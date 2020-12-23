@@ -10,6 +10,7 @@ class WCEL_Loss(nn.Module):
     """
     def __init__(self):
         super(WCEL_Loss, self).__init__()
+        # print("WCEL loss weight:",len(cfg.DATASET.WCE_LOSS_WEIGHT))
         self.weight = cfg.DATASET.WCE_LOSS_WEIGHT
         self.weight /= np.sum(self.weight, 1, keepdims=True)
 
@@ -19,6 +20,7 @@ class WCEL_Loss(nn.Module):
         # print(gt_bins.shape)
         # print(gt.shape)
         # print("-----")
+        # print("weight shape:",self.weight.shape)
         self.weight = torch.tensor(self.weight, dtype=torch.float32, device=pred_logit.device)
         classes_range = torch.arange(cfg.MODEL.DECODER_OUTPUT_C, device=gt_bins.device, dtype=gt_bins.dtype)
         # print(classes_range.shape)
@@ -34,7 +36,8 @@ class WCEL_Loss(nn.Module):
         gt_reshape = gt_bins.reshape(-1, 1)
         # print("gt depth bin value:",gt_reshape[50].item())
         one_hot = (gt_reshape == classes_range).to(dtype=torch.float, device=pred_logit.device)
-        # print("one hot value:",one_hot[50])
+        # print("one hot shape:",one_hot.shape)
+        # print("weight shape",self.weight.shape)
         weight = torch.matmul(one_hot, self.weight)
         weight_log_pred = weight * log_pred
         # print("-----")

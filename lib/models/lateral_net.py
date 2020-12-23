@@ -220,6 +220,8 @@ class fcn_topdown(nn.Module):
         x5 = self.topdown_fcn5(x4, backbone_stage_size)
         x6 = self.topdown_predict(x5)
 
+        # print("output shape:",len(x6))
+
         return x6
 
 

@@ -15,7 +15,8 @@ def bins_to_depth(depth_bin):
     depth_bin = depth_bin.permute(0, 2, 3, 1) #[b, h, w, c]
     if type(cfg.DATASET.DEPTH_BIN_BORDER).__module__ != torch.__name__:
         cfg.DATASET.DEPTH_BIN_BORDER = torch.tensor(cfg.DATASET.DEPTH_BIN_BORDER, dtype=torch.float32).cuda()
-    # print(cfg.DATASET.DEPTH_BIN_BORDER.shape)
+    # print("bin border shape",cfg.DATASET.DEPTH_BIN_BORDER.shape)
+    # print("pred depth bin shape:",depth_bin.shape)
     depth = depth_bin * cfg.DATASET.DEPTH_BIN_BORDER
     depth = torch.sum(depth, dim=3, dtype=torch.float32, keepdim=True)
     depth = 10 ** depth

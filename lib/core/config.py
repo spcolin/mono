@@ -36,10 +36,11 @@ __C.DATASET.DEPTH_MIN = 0.001
 __C.DATASET.DEPTH_MAX = 1.0
 __C.DATASET.DEPTH_MIN_LOG = np.log10(__C.DATASET.DEPTH_MIN)
 # Minimum depth in log space
-# Interval of each bin
+# Interval of each bin,calculated in merge_cfg_from_file() function
 __C.DATASET.DEPTH_BIN_INTERVAL = None
 # The boundary of each bin
 __C.DATASET.DEPTH_BIN_BORDER = None
+# the purpose of WCE_LOSS_WEIGHT is confused
 __C.DATASET.WCE_LOSS_WEIGHT = None
 # Camera Parameters
 __C.DATASET.FOCAL_X = 1.0

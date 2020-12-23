@@ -18,6 +18,7 @@ class MetricDepthModel(nn.Module):
     def forward(self, data):
         # Input data is a_real, predicted data is b_fake, groundtruth is b_real
         self.a_real = data['A'].cuda()
+        # b_fake_softmax is the softmax of b_fake_logit
         self.b_fake_logit, self.b_fake_softmax = self.depth_model(self.a_real)
         return {'b_fake_logit': self.b_fake_logit, 'b_fake_softmax': self.b_fake_softmax}
 
@@ -63,7 +64,7 @@ class ModelLoss(object):
 
     def criterion(self, pred_softmax, pred_logit, data, epoch):
         pred_depth = bins_to_depth(pred_softmax)
-        print(pred_depth.shape)
+        # print(pred_depth.shape)
         loss_metric = self.weight_cross_entropy_loss(pred_logit, data['B_bins'], data['B'].cuda())
         loss_normal = self.virtual_normal_loss(data['B'].cuda(), pred_depth)
 
