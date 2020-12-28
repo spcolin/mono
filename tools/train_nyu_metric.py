@@ -15,6 +15,8 @@ import math
 import traceback
 from tools.parse_arg_train import TrainOptions
 from tools.parse_arg_val import ValOptions
+from torchvision import transforms
+import cv2
 
 logger = setup_logging(__name__)
 
@@ -39,11 +41,31 @@ def train(train_dataloader, model, epoch, loss_func,
     base_steps = epoch_steps * epoch + ignore_step if ignore_step != -1 else epoch_steps * epoch
     for i, data in enumerate(train_dataloader):
 
+        print("step:",i)
 
         if ignore_step != -1 and i > epoch_steps - ignore_step:
             return
         scheduler.step()  # decay lr every iteration
         training_stats.IterTic()
+
+        image0=data['A'][0]
+        depth0=data['B'][0]
+        # raw_image0=data['A_raw'][0].permute(2,0,1)
+        # raw_depth0=data['B_raw'][0]
+        # print("image shape:", image0.shape)
+        image=transforms.ToPILImage()(image0)
+        depth=transforms.ToPILImage()(depth0)
+        # raw_image=transforms.ToPILImage()(raw_image0)
+        # raw_depth=transforms.ToPILImage()(raw_depth0)
+        # cv2.imshow("image",image0)
+        # raw_image.show()
+        # raw_depth.show()
+        image.show()
+        depth.show()
+
+        # print("image shape:", image.shape)
+        # print("depth shape:", depth0.shape)
+
         out = model(data)
         losses = loss_func.criterion(out['b_fake_softmax'], out['b_fake_logit'], data, epoch)
         optimizer.optim(losses)

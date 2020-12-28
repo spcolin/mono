@@ -65,11 +65,11 @@ class NYUDV2Dataset():
             self.A = AB['rgbs']
             self.B = AB['depths']
             self.depth_normalize = 10.0
-            # print(".mat way")
+            print("mat way")
 
         else:
 
-            # print("image way")
+            print("image way")
 
             self.A = None
             self.B = None
@@ -88,7 +88,7 @@ class NYUDV2Dataset():
 
         return A_list, B_list, AB_anno
 
-
+    @loop_until_success
     def __getitem__(self, anno_index):
         data = self.online_aug(anno_index)
         return data
@@ -118,8 +118,8 @@ class NYUDV2Dataset():
             A = A[:, :, ::-1].copy() #rgb -> bgr
 
         # print("*********************")
-        # print(A.shape)
-        # print(B.shape)
+        # print("image shape:",A.shape)
+        # print("depth map shape:",B.shape)
         # print("---------------------")
         # print("*********************")
         # print("depth value:",B[50][50])
@@ -163,20 +163,31 @@ class NYUDV2Dataset():
         flip_flg = True if flip_prob > 0.5 and 'train' in self.opt.phase else False
 
         # raw_size = np.array([cfg.DATASET.CROP_SIZE[1], 416, 448, 480, 512, 544, 576, 608, 640])
-        raw_size = np.array([cfg.DATASET.CROP_SIZE[1], 416, 448, 480, 512, 544, 561, 608, 640])
+        raw_size = np.array([cfg.DATASET.CROP_SIZE[1], 407, 429, 451, 473, 495, 517,539,561])
+
         size_index = np.random.randint(0, 9) if 'train' in self.opt.phase else 8
 
         # pad
         pad_height = raw_size[size_index] - self.uniform_size[0] if raw_size[size_index] > self.uniform_size[0]\
                     else 0
-        pad = [pad_height, 0, 0, 0]  # [up, down, left, right]
+
+        if pad_height!=0:
+            pad_up=np.random.randint(0,pad_height)
+            pad_down=pad_height-pad_up
+            pad = [pad_up, pad_down, 0, 0]  # [up, down, left, right]
+        else:
+            pad = [pad_height, 0, 0, 0]  # [up, down, left, right]
+            # pad = [pad_up, pad_down, 0, 0]  # [up, down, left, right]
 
         # crop
         crop_height = raw_size[size_index]
         crop_width = raw_size[size_index]
         start_x = np.random.randint(0, int(self.uniform_size[1] - crop_width)+1)
-        start_y = 0 if pad_height != 0 else np.random.randint(0,
-                int(self.uniform_size[0] - crop_height) + 1)
+        # start_y = 0 if pad_height != 0 else np.random.randint(0,
+        #         int(self.uniform_size[0] - crop_height) + 1)
+        start_y = np.random.randint(0,pad_height) if pad_height != 0 \
+            else np.random.randint(0,int(self.uniform_size[0] - crop_height) + 1)
+
         crop_size = [start_x, start_y, crop_height, crop_width]
 
         resize_ratio = float(cfg.DATASET.CROP_SIZE[1] / crop_width)
@@ -193,10 +204,13 @@ class NYUDV2Dataset():
         :param pad_value: padding value
         :return:
         """
+
+        # print(img.shape)
         # Flip
         if flip:
             img = np.flip(img, axis=1)
 
+        # print("image shape:",img.shape)
         # Pad the raw image
         if len(img.shape) == 3:
             img_pad = np.pad(img, ((pad[0], pad[1]), (pad[2], pad[3]), (0, 0)), 'constant',
@@ -204,11 +218,15 @@ class NYUDV2Dataset():
         else:
             img_pad = np.pad(img, ((pad[0], pad[1]), (pad[2], pad[3])), 'constant',
                              constant_values=(pad_value, pad_value))
+
+
         # Crop the resized image
         img_crop = img_pad[crop_size[1]:crop_size[1] + crop_size[3], crop_size[0]:crop_size[0] + crop_size[2]]
 
+
         # Resize the raw image
         img_resize = cv2.resize(img_crop, (cfg.DATASET.CROP_SIZE[1], cfg.DATASET.CROP_SIZE[0]), interpolation=cv2.INTER_LINEAR)
+
         return img_resize
 
     def depth_to_bins(self, depth):
@@ -249,10 +267,10 @@ class NYUDV2Dataset():
         img = img.astype(np.float32)
         img /= scale
         img = torch.from_numpy(img.copy())
-        if img.size(0) == 3:
-            img = transforms.Normalize(cfg.DATASET.RGB_PIXEL_MEANS, cfg.DATASET.RGB_PIXEL_VARS)(img)
-        else:
-            img = transforms.Normalize((0,), (1,))(img)
+        # if img.size(0) == 3:
+        #     img = transforms.Normalize(cfg.DATASET.RGB_PIXEL_MEANS, cfg.DATASET.RGB_PIXEL_VARS)(img)
+        # else:
+        #     img = transforms.Normalize((0,), (1,))(img)
         return img
 
     def __len__(self):

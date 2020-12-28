@@ -29,6 +29,9 @@ if __name__ == '__main__':
 
     model.eval()
 
+    test_args.load_ckpt="/home/colin/papercode/nyu_rawdata.pth"
+    # test_args.load_ckpt="/home/colin/Downloads/epoch3_step134000.pth"
+
     # load checkpoint
     if test_args.load_ckpt:
         load_ckpt(test_args, model)
