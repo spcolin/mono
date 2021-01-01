@@ -85,7 +85,7 @@ __C.TRAIN.OUTPUT_DIR = './outputs'
 __C.TRAIN.LOG_DIR = os.path.join(__C.TRAIN.OUTPUT_DIR, cfg.TRAIN.RUN_NAME)
 # Differ the learning rate between encoder and decoder
 __C.TRAIN.SCALE_DECODER_LR = 1
-__C.TRAIN.BASE_LR = 0.0005
+__C.TRAIN.BASE_LR = 0.0001
 __C.TRAIN.MAX_ITER = 0
 # Set training epoches, end at the last epoch of list
 __C.TRAIN.EPOCH = 20
@@ -96,7 +96,7 @@ __C.TRAIN.VAL_STEP = 2000
 __C.TRAIN.BATCHSIZE = 4
 __C.TRAIN.GPU_NUM = 1
 # Steps for LOG interval
-__C.TRAIN.LOG_INTERVAL = 2000
+__C.TRAIN.LOG_INTERVAL = 10
 __C.TRAIN.LOAD_CKPT = None
 
 __C.TRAIN.LOSS_MODE = 'joint'

@@ -23,12 +23,13 @@ data=scio.loadmat(mat_path)
 # print(len(data['raw_rgb_filenames']))
 
 
-depth=data['depths'][0]
-print(depth.shape)
-depth=depth.transpose((1,0))
-print(depth.shape)
-print(depth[2])
+depth=data['rgbs'][0]
+# print(depth.shape)
+depth=depth.transpose((0,2,1))/255.0
+# print(depth.shape)
+# print(depth[2])
 # print(depth[1][5])
 # print(depth[2][5])
 
-# cv2.imshow("rgb",depth)
+cv2.imshow("rgb",depth)
+cv2.waitKey(0)

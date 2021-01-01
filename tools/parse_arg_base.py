@@ -13,18 +13,17 @@ class BaseOptions():
 
         parser.add_argument('--dataroot',  help='Path to dataset',default="datasets/NYUDV2")
         parser.add_argument('--batchsize', type=int, default=2, help='Batch size')
-        # not clear
         parser.add_argument('--cfg_file', default='lib/configs/resnext101_32x4d_nyudv2_class',
                             help='Set model and dataset config files')
         parser.add_argument('--dataset', default='nyudv2', help='the name of dataset,used to specify the dataset')
-        parser.add_argument('--load_ckpt', help='Checkpoint path to load')
-        # not clear
-        parser.add_argument('--resume', action='store_true', help='Resume to train')
+        parser.add_argument('--load_ckpt', default="/home/ckpt/epoch6_step226000.pth",help='Checkpoint path to load')
+        # parser.add_argument('--resume', action='store_true', help='Resume to train')
+        parser.add_argument('--resume', default=True, help='Resume to train',type=bool)
+
         parser.add_argument('--epoch', default=30, type=int, help='Set training epochs')
         parser.add_argument('--start_epoch', default=0, type=int, help='Set training epochs')
         parser.add_argument('--start_step', default=0, type=int, help='Set training steps')
         parser.add_argument('--thread', default=4, type=int, help='Thread for loading data')
-        # not clear
         parser.add_argument('--use_tfboard', action='store_true', help='Tensorboard to log training info')
         # not clear
         parser.add_argument('--results_dir', type=str, default='./evaluation', help='Output dir')

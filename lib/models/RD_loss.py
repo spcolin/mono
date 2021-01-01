@@ -200,6 +200,7 @@ class RD_loss(nn.Module):
         bottom_right=self.compute_bottom_right(depth_tensor)
         bottom_left=self.compute_bottom_left(depth_tensor)
 
+
         rd_top=self.compute_rd_top(bottom,top)
         rd_right=self.compute_rd_right(left,right)
         rd_bottom=self.compute_rd_bottom(top,bottom)
