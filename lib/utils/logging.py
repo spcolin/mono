@@ -27,7 +27,10 @@ def log_stats(stats, args):
     lines += "\t\t" + ",       ".join("%s: %.6f" % (k, v) for k, v in stats['lr'].items()) + ", "
     lines += '\n'
     print(lines[:-1])  # remove last new line
-
+    f=open("training_rst.txt",'a')
+    f.write(lines[:-1])
+    f.write('\n')
+    f.close()
 
 class SmoothedValue(object):
     """Track a series of values and provide access to smoothed values over a
