@@ -1,0 +1,12 @@
+[Step 10/11940] [Epoch 0/30]  [nyudv2]
+		loss: 17.907,    time: 4.400544,    eta: 14:34:58
+		metric_loss: 5.222, 		virtual_normal_loss: 8.875, 		rd_loss: 3.999, 		abs_rel: 0.000000, 
+		group0_lr: 0.000100,       group1_lr: 0.000100, 
+[Step 10/11940] [Epoch 0/30]  [nyudv2]
+		loss: 18.899,    time: 4.380826,    eta: 14:31:03
+		metric_loss: 5.263, 		virtual_normal_loss: 9.411, 		rd_loss: 4.337, 		abs_rel: 0.000000, 
+		group0_lr: 0.000100,       group1_lr: 0.000100, 
+[Step 20/11940] [Epoch 0/30]  [nyudv2]
+		loss: 17.381,    time: 4.949345,    eta: 16:23:16
+		metric_loss: 5.128, 		virtual_normal_loss: 8.075, 		rd_loss: 4.213, 		abs_rel: 0.000000, 
+		group0_lr: 0.000100,       group1_lr: 0.000100, 

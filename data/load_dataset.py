@@ -7,12 +7,15 @@ class CustomerDataLoader():
     def __init__(self, opt):
         self.opt = opt
         self.dataset = create_dataset(opt)
+        train_sampler = torch.utils.data.distributed.DistributedSampler(self.dataset,shuffle=True)
         self.dataloader = torch.utils.data.DataLoader(
             self.dataset,
             batch_size=opt.batchsize,
-            shuffle=True if 'train' in opt.phase else False,
+            # shuffle=True if 'train' in opt.phase else False,
             # shuffle=False,
-            num_workers=opt.thread)
+            num_workers=opt.thread,
+        drop_last=True,
+        sampler=train_sampler)
 
     def load_data(self):
         return self

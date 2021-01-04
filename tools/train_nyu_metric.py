@@ -2,7 +2,7 @@ import sys
 import datetime
 import time
 import os
-# sys.path.append("/home/colin/papercode/VNL_Monocular_Depth_Prediction-master/")
+sys.path.append("/home/colin/papercode/VNL_Monocular_Depth_Prediction-master/")
 from data.load_dataset import CustomerDataLoader
 from lib.models.image_transfer import resize_image
 from lib.utils.training_stats import TrainingStats
@@ -41,6 +41,14 @@ def train(train_dataloader, model, epoch, loss_func,
     base_steps = epoch_steps * epoch + ignore_step if ignore_step != -1 else epoch_steps * epoch
     for i, data in enumerate(train_dataloader):
 
+        # img=data['A'][0]
+        # depth=data['B'][0]
+        # img=transforms.ToPILImage()(img)
+        # depth=transforms.ToPILImage()(depth)
+        #
+        # img.show()
+        # depth.show()
+
         print("step:",i)
 
         if ignore_step != -1 and i > epoch_steps - ignore_step:
@@ -64,7 +72,8 @@ def train(train_dataloader, model, epoch, loss_func,
 
         # save checkpoint
         if step % cfg.TRAIN.SNAPSHOT_ITERS == 0 and step != 0:
-            save_ckpt(train_args, step, epoch, model, optimizer.optimizer, scheduler, val_err[0])
+            if torch.distributed.get_rank()==0:
+                save_ckpt(train_args, step, epoch, model, optimizer.optimizer, scheduler, val_err[0])
 
 
         # break
@@ -87,13 +96,18 @@ def val(val_dataloader, model):
 
 
 if __name__=='__main__':
+    torch.distributed.init_process_group('nccl',init_method='env://')
+    local_rank = torch.distributed.get_rank()
+    torch.cuda.set_device(local_rank)
+
     # Train args
     train_opt = TrainOptions()
     train_args = train_opt.parse()
     # train_opt.print_options(train_args)
 
-    train_args.load_ckpt="/home/ckpt/epoch6_step226000.pth"
+    train_args.load_ckpt="/home/colin/papercode/VNL_Monocular_Depth_Prediction-master/tools/outputs/Jan04-21-55-14_colin-Alienware-Aurora-R7/ckpt/epoch0_step10.pth"
     train_args.resume=True
+
 
 
     # Validation args
@@ -131,12 +145,13 @@ if __name__=='__main__':
     # load model
     model = MetricDepthModel()
 
-    if gpu_num != -1:
-        logger.info('{:>15}: {:<30}'.format('GPU_num', gpu_num))
-        logger.info('{:>15}: {:<30}'.format('train_data_size', train_datasize))
-        logger.info('{:>15}: {:<30}'.format('val_data_size', val_datasize))
-        logger.info('{:>15}: {:<30}'.format('total_iterations', total_iters))
-        model.cuda()
+
+    # if gpu_num != -1:
+    #     logger.info('{:>15}: {:<30}'.format('GPU_num', gpu_num))
+    #     logger.info('{:>15}: {:<30}'.format('train_data_size', train_datasize))
+    #     logger.info('{:>15}: {:<30}'.format('val_data_size', val_datasize))
+    #     logger.info('{:>15}: {:<30}'.format('total_iterations', total_iters))
+    #     model.cuda()
 
     optimizer = ModelOptimizer(model)
     loss_func = ModelLoss()
@@ -152,8 +167,12 @@ if __name__=='__main__':
         load_ckpt(train_args, model, optimizer.optimizer, scheduler, val_err)
         ignore_step = train_args.start_step - train_args.start_epoch * math.ceil(train_datasize / train_args.batchsize)
 
-    if gpu_num != -1:
-        model = torch.nn.DataParallel(model)
+    # if gpu_num != -1:
+    #     # model = torch.nn.DataParallel(model)
+    #     model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[local_rank])
+    model=model.to(local_rank)
+    model = torch.nn.parallel.DistributedDataParallel(model,device_ids=[local_rank])
+
     try:
         for epoch in range(train_args.start_epoch, train_args.epoch):
             # training
@@ -161,7 +180,7 @@ if __name__=='__main__':
                   val_dataloader, val_err, ignore_step)
             ignore_step = -1
 
-            break
+            # break
             
 
     except (RuntimeError, KeyboardInterrupt):

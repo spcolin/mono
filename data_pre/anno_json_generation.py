@@ -44,7 +44,7 @@ def json_generate(data_path):
     return json_list
 
 
-path="/home/colin/p_nyu/"
+path="/home/colin/p_nyu2/"
 a=json_generate(path)
 
 print(len(a))

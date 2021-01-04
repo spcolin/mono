@@ -27,6 +27,9 @@ class BaseOptions():
         parser.add_argument('--use_tfboard', action='store_true', help='Tensorboard to log training info')
         # not clear
         parser.add_argument('--results_dir', type=str, default='./evaluation', help='Output dir')
+
+        # the param add for DistributedDataParallel
+        parser.add_argument('--local_rank', type=int, default=0,help='node rank for distributed training')
         self.initialized = True
         return parser
 

@@ -116,6 +116,9 @@ class ModelOptimizer(object):
         self.optimizer.zero_grad()
         loss_all = loss['total_loss']
         loss_all.backward()
+        # print(self.optimizer.state_dict()['state'])
+        # print(self.optimizer.state_dict()['param_groups'])
+
         self.optimizer.step()
 
 
