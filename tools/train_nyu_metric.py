@@ -16,7 +16,7 @@ import traceback
 from tools.parse_arg_train import TrainOptions
 from tools.parse_arg_val import ValOptions
 from torchvision import transforms
-import cv2
+import cv2,torch
 
 logger = setup_logging(__name__)
 
@@ -105,7 +105,7 @@ if __name__=='__main__':
     train_args = train_opt.parse()
     # train_opt.print_options(train_args)
 
-    train_args.load_ckpt="/home/colin/papercode/VNL_Monocular_Depth_Prediction-master/tools/outputs/Jan04-21-55-14_colin-Alienware-Aurora-R7/ckpt/epoch0_step10.pth"
+    train_args.load_ckpt="/home/colin/papercode/VNL_Monocular_Depth_Prediction-master/tools/outputs/Jan05-08-40-33_colin-Alienware-Aurora-R7/ckpt/epoch0_step10.pth"
     train_args.resume=True
 
 
@@ -144,6 +144,8 @@ if __name__=='__main__':
 
     # load model
     model = MetricDepthModel()
+    model=torch.nn.SyncBatchNorm.convert_sync_batchnorm(model)
+
 
 
     # if gpu_num != -1:
