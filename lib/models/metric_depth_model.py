@@ -8,6 +8,7 @@ from lib.models.VNL_loss import VNL_Loss
 from lib.models.image_transfer import bins_to_depth, kitti_merge_imgs
 from lib.core.config import cfg
 from lib.models.RD_loss import RD_loss
+from apex import amp
 
 
 class MetricDepthModel(nn.Module):
@@ -62,7 +63,7 @@ class ModelLoss(object):
         super(ModelLoss, self).__init__()
         self.weight_cross_entropy_loss = WCEL_Loss()
         self.virtual_normal_loss = VNL_Loss(focal_x=cfg.DATASET.FOCAL_X, focal_y=cfg.DATASET.FOCAL_Y, input_size=cfg.DATASET.CROP_SIZE)
-        self.rd_loss=RD_loss()
+        self.rd_loss=RD_loss(4)
 
     def criterion(self, pred_softmax, pred_logit, data, epoch):
         pred_depth = bins_to_depth(pred_softmax)
@@ -112,13 +113,14 @@ class ModelOptimizer(object):
              'weight_decay': weight_decay},
             ]
         self.optimizer = torch.optim.SGD(net_params, momentum=0.9)
+
+
+
     def optim(self, loss):
+
         self.optimizer.zero_grad()
         loss_all = loss['total_loss']
         loss_all.backward()
-        # print(self.optimizer.state_dict()['state'])
-        # print(self.optimizer.state_dict()['param_groups'])
-
         self.optimizer.step()
 
 

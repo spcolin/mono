@@ -16,7 +16,7 @@ import traceback
 from tools.parse_arg_train import TrainOptions
 from tools.parse_arg_val import ValOptions
 from torchvision import transforms
-import cv2,torch
+import cv2,torch,apex
 
 logger = setup_logging(__name__)
 
@@ -40,14 +40,6 @@ def train(train_dataloader, model, epoch, loss_func,
     epoch_steps = math.ceil(len(train_dataloader) / cfg.TRAIN.BATCHSIZE)
     base_steps = epoch_steps * epoch + ignore_step if ignore_step != -1 else epoch_steps * epoch
     for i, data in enumerate(train_dataloader):
-
-        # img=data['A'][0]
-        # depth=data['B'][0]
-        # img=transforms.ToPILImage()(img)
-        # depth=transforms.ToPILImage()(depth)
-        #
-        # img.show()
-        # depth.show()
 
         print("step:",i)
 
@@ -105,8 +97,8 @@ if __name__=='__main__':
     train_args = train_opt.parse()
     # train_opt.print_options(train_args)
 
-    train_args.load_ckpt="/home/colin/papercode/VNL_Monocular_Depth_Prediction-master/tools/outputs/Jan05-08-40-33_colin-Alienware-Aurora-R7/ckpt/epoch0_step10.pth"
-    train_args.resume=True
+    # train_args.load_ckpt="/home/colin/papercode/VNL_Monocular_Depth_Prediction-master/tools/outputs/Jan05-08-40-33_colin-Alienware-Aurora-R7/ckpt/epoch0_step10.pth"
+    # train_args.resume=True
 
 
 
@@ -144,9 +136,13 @@ if __name__=='__main__':
 
     # load model
     model = MetricDepthModel()
+    optimizer = ModelOptimizer(model)
+
     model=torch.nn.SyncBatchNorm.convert_sync_batchnorm(model)
 
+    model = model.to(local_rank)
 
+    model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[local_rank])
 
     # if gpu_num != -1:
     #     logger.info('{:>15}: {:<30}'.format('GPU_num', gpu_num))
@@ -155,7 +151,7 @@ if __name__=='__main__':
     #     logger.info('{:>15}: {:<30}'.format('total_iterations', total_iters))
     #     model.cuda()
 
-    optimizer = ModelOptimizer(model)
+
     loss_func = ModelLoss()
 
     val_err = [{'abs_rel': 0}]
@@ -172,8 +168,9 @@ if __name__=='__main__':
     # if gpu_num != -1:
     #     # model = torch.nn.DataParallel(model)
     #     model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[local_rank])
-    model=model.to(local_rank)
-    model = torch.nn.parallel.DistributedDataParallel(model,device_ids=[local_rank])
+
+
+
 
     try:
         for epoch in range(train_args.start_epoch, train_args.epoch):

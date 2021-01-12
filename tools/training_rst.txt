@@ -14,3 +14,67 @@
 		loss: 19.405,    time: 4.411730,    eta: 14:37:11
 		metric_loss: 5.387, 		virtual_normal_loss: 9.807, 		rd_loss: 4.842, 		abs_rel: 0.000000, 
 		group0_lr: 0.000100,       group1_lr: 0.000100, 
+[Step 10/11940] [Epoch 0/30]  [nyudv2]
+		loss: nan,    time: 4.345313,    eta: 14:23:59
+		metric_loss: nan, 		virtual_normal_loss: nan, 		rd_loss: nan, 		abs_rel: 0.000000, 
+		group0_lr: 0.000100,       group1_lr: 0.000100, 
+[Step 20/11940] [Epoch 0/30]  [nyudv2]
+		loss: nan,    time: 4.457296,    eta: 14:45:30
+		metric_loss: nan, 		virtual_normal_loss: nan, 		rd_loss: nan, 		abs_rel: 0.000000, 
+		group0_lr: 0.000100,       group1_lr: 0.000100, 
+[Step 10/11940] [Epoch 0/30]  [nyudv2]
+		loss: nan,    time: 4.378085,    eta: 14:30:30
+		metric_loss: nan, 		virtual_normal_loss: nan, 		rd_loss: nan, 		abs_rel: 0.000000, 
+		group0_lr: 0.000100,       group1_lr: 0.000100, 
+[Step 20/11940] [Epoch 0/30]  [nyudv2]
+		loss: nan,    time: 4.402587,    eta: 14:34:38
+		metric_loss: nan, 		virtual_normal_loss: nan, 		rd_loss: nan, 		abs_rel: 0.000000, 
+		group0_lr: 0.000100,       group1_lr: 0.000100, 
+[Step 30/11940] [Epoch 0/30]  [nyudv2]
+		loss: nan,    time: 4.438427,    eta: 14:41:01
+		metric_loss: nan, 		virtual_normal_loss: nan, 		rd_loss: nan, 		abs_rel: 0.000000, 
+		group0_lr: 0.000100,       group1_lr: 0.000100, 
+[Step 40/11940] [Epoch 0/30]  [nyudv2]
+		loss: nan,    time: 4.447014,    eta: 14:41:59
+		metric_loss: nan, 		virtual_normal_loss: nan, 		rd_loss: nan, 		abs_rel: 0.000000, 
+		group0_lr: 0.000100,       group1_lr: 0.000100, 
+[Step 50/11940] [Epoch 0/30]  [nyudv2]
+		loss: nan,    time: 4.461855,    eta: 14:44:11
+		metric_loss: nan, 		virtual_normal_loss: nan, 		rd_loss: nan, 		abs_rel: 0.000000, 
+		group0_lr: 0.000100,       group1_lr: 0.000100, 
+[Step 10/11940] [Epoch 0/30]  [nyudv2]
+		loss: 18.372,    time: 4.388009,    eta: 14:32:28
+		metric_loss: 5.257, 		virtual_normal_loss: 9.245, 		rd_loss: 4.279, 		abs_rel: 0.000000, 
+		group0_lr: 0.000100,       group1_lr: 0.000100, 
+[Step 20/11940] [Epoch 0/30]  [nyudv2]
+		loss: 18.017,    time: 4.415337,    eta: 14:37:10
+		metric_loss: 5.160, 		virtual_normal_loss: 8.672, 		rd_loss: 3.792, 		abs_rel: 0.000000, 
+		group0_lr: 0.000100,       group1_lr: 0.000100, 
+[Step 30/11940] [Epoch 0/30]  [nyudv2]
+		loss: 16.226,    time: 4.427465,    eta: 14:38:51
+		metric_loss: 5.037, 		virtual_normal_loss: 7.879, 		rd_loss: 3.180, 		abs_rel: 0.000000, 
+		group0_lr: 0.000100,       group1_lr: 0.000100, 
+[Step 40/11940] [Epoch 0/30]  [nyudv2]
+		loss: 15.895,    time: 4.464344,    eta: 14:45:25
+		metric_loss: 4.961, 		virtual_normal_loss: 7.115, 		rd_loss: 3.172, 		abs_rel: 0.000000, 
+		group0_lr: 0.000100,       group1_lr: 0.000100, 
+[Step 50/11940] [Epoch 0/30]  [nyudv2]
+		loss: 15.911,    time: 4.467494,    eta: 14:45:18
+		metric_loss: 4.846, 		virtual_normal_loss: 7.036, 		rd_loss: 3.479, 		abs_rel: 0.000000, 
+		group0_lr: 0.000100,       group1_lr: 0.000100, 
+[Step 60/11940] [Epoch 0/30]  [nyudv2]
+		loss: 14.191,    time: 4.480538,    eta: 14:47:08
+		metric_loss: 4.809, 		virtual_normal_loss: 6.509, 		rd_loss: 2.870, 		abs_rel: 0.000000, 
+		group0_lr: 0.000100,       group1_lr: 0.000100, 
+[Step 10/11940] [Epoch 0/30]  [nyudv2]
+		loss: nan,    time: 4.519963,    eta: 14:58:43
+		metric_loss: nan, 		virtual_normal_loss: nan, 		rd_loss: nan, 		abs_rel: 0.000000, 
+		group0_lr: 0.000100,       group1_lr: 0.000100, 
+[Step 20/11940] [Epoch 0/30]  [nyudv2]
+		loss: nan,    time: 4.552426,    eta: 15:04:24
+		metric_loss: nan, 		virtual_normal_loss: nan, 		rd_loss: nan, 		abs_rel: 0.000000, 
+		group0_lr: 0.000100,       group1_lr: 0.000100, 
+[Step 30/11940] [Epoch 0/30]  [nyudv2]
+		loss: nan,    time: 4.567301,    eta: 15:06:36
+		metric_loss: nan, 		virtual_normal_loss: nan, 		rd_loss: nan, 		abs_rel: 0.000000, 
+		group0_lr: 0.000100,       group1_lr: 0.000100, 

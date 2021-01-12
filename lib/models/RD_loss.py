@@ -1,84 +1,86 @@
 import torch
 import torch.nn as nn
+import numpy as np
 
 
 
 class RD_loss(nn.Module):
 
-    def __init__(self):
+    def __init__(self,range=3):
         super(RD_loss, self).__init__()
+        self.range_list=np.random.randint(1,range+1,size=8)
 
 
-    def compute_left(self,tensor):
+    def compute_left(self,tensor,range):
         """
         get the 0 to n-2 cols of tensor(n cols totally)
         :param tensor: B*1*H*W size
         :return: the 0 to n-2 cols of tensor,B*1*H*(W-1)
         """
-        left=tensor[:,:,:,:-1]
+        left=tensor[:,:,:,:-range]
         return left
 
-    def compute_right(self,tensor):
+    def compute_right(self,tensor,range):
         """
         get the 1 to n-1 cols of tensor(n cols totally)
         :param tensor: B*1*H*W size
         :return: the 1 to n-1 cols of tensor,B*1*H*(W-1)
         """
-        right=tensor[:,:,:,1:]
+        right=tensor[:,:,:,range:]
         return right
 
-    def compute_top(self,tensor):
+    def compute_top(self,tensor,range):
         """
         get the 0 to n-2 rows of tensor(n rows totally)
         :param tensor: B*1*H*W size
         :return: the 0 to n-2 rows of tensor,B*1*(H-1)*W
         """
-        top=tensor[:,:,:-1,:]
+        top=tensor[:,:,:-range,:]
         return top
 
-    def compute_bottom(self,tensor):
+    def compute_bottom(self,tensor,range):
         """
         get the 1 to n-1 rows of tensor(n rows totally)
         :param tensor: B*1*H*W size
         :return: the 1 to n-1 rows of tensor,B*1*(H-1)*W
         """
-        bottom=tensor[:,:,1:,:]
+        bottom=tensor[:,:,range:,:]
         return bottom
 
-    def compute_left_top(self,tensor):
+    def compute_left_top(self,tensor,range):
         """
         get the [0 to n-2]*[0 to n-2] of tensor
         :param tensor: B*1*H*W size
         :return: the [0 to n-2]*[0 to n-2] of tensor,B*1*(H-1)*(W-1)
         """
-        left_top=tensor[:,:,:,:-1][:,:,:-1,:]
+        left_top=tensor[:,:,:,:-range][:,:,:-range,:]
         return left_top
 
-    def compute_right_top(self,tensor):
+    def compute_right_top(self,tensor,range):
         """
         get the [0 to n-2]*[1 to n-1] of tensor
         :param tensor: B*1*H*W size
         :return: the [0 to n-2]*[1 to n-1] of tensor,B*1*(H-1)*(W-1)
         """
-        right_top=tensor[:,:,:,1:][:,:,:-1,:]
+        right_top=tensor[:,:,:,range:][:,:,:-range,:]
         return right_top
 
-    def compute_bottom_left(self,tensor):
+    def compute_bottom_left(self,tensor,range):
         """
         get the [1 to n-1]*[0 to n-2] of tensor
         :param tensor: B*1*H*W size
         :return: [1 to n-1]*[0 to n-2] of tensor,B*1*(H-1)*(W-1)
         """
-        bottom_left=tensor[:,:,1:,:][:,:,:,:-1]
+        bottom_left=tensor[:,:,range:,:][:,:,:,:-range]
         return bottom_left
 
-    def compute_bottom_right(self,tensor):
+    def compute_bottom_right(self,tensor,range):
         """
         get the [1 to n-1]*[1 to n-1] of tensor
         :param tensor: B*1*H*W size
         :return: [1 to n-1]*[1 to n-1] of tensor,B*1*(H-1)*(W-1)
         """
-        bottom_right=tensor[:,:,1:,:][:,:,:,1:]
+        bottom_right=tensor[:,:,range:,:][:,:,:,range:]
         return bottom_right
 
     def compute_rd_top(self,b_tensor,t_tensor):
@@ -191,24 +193,38 @@ class RD_loss(nn.Module):
         :param depth_tensor: the original depth map,B*1*H*W
         :return: a list containing all the relative depth map of depth tensor,in the order of [top,right,bottom,left,left top,right top,bottom right,bottom left]
         """
-        top=self.compute_top(depth_tensor)
-        right=self.compute_right(depth_tensor)
-        bottom=self.compute_bottom(depth_tensor)
-        left=self.compute_left(depth_tensor)
-        left_top=self.compute_left_top(depth_tensor)
-        right_top=self.compute_right_top(depth_tensor)
-        bottom_right=self.compute_bottom_right(depth_tensor)
-        bottom_left=self.compute_bottom_left(depth_tensor)
+        top=self.compute_top(depth_tensor,self.range_list[0])
+        bottom=self.compute_bottom(depth_tensor,self.range_list[0])
+        rd_top = self.compute_rd_top(bottom, top)
+
+        top2 = self.compute_top(depth_tensor, self.range_list[1])
+        bottom2 = self.compute_bottom(depth_tensor, self.range_list[1])
+        rd_bottom = self.compute_rd_bottom(top2, bottom2)
+
+        right=self.compute_right(depth_tensor,self.range_list[2])
+        left=self.compute_left(depth_tensor,self.range_list[2])
+        rd_right = self.compute_rd_right(left, right)
+
+        right2 = self.compute_right(depth_tensor, self.range_list[3])
+        left2 = self.compute_left(depth_tensor, self.range_list[3])
+        rd_left = self.compute_rd_left(left2, right2)
 
 
-        rd_top=self.compute_rd_top(bottom,top)
-        rd_right=self.compute_rd_right(left,right)
-        rd_bottom=self.compute_rd_bottom(top,bottom)
-        rd_left=self.compute_rd_left(left,right)
-        rd_left_top=self.compute_rd_left_top(left_top,bottom_right)
+        left_top=self.compute_left_top(depth_tensor,self.range_list[4])
+        bottom_right = self.compute_bottom_right(depth_tensor, self.range_list[4])
+        rd_left_top = self.compute_rd_left_top(left_top, bottom_right)
+
+        left_top2 = self.compute_left_top(depth_tensor, self.range_list[5])
+        bottom_right2 = self.compute_bottom_right(depth_tensor, self.range_list[5])
+        rd_bottom_right=self.compute_rd_bottom_right(left_top2,bottom_right2)
+
+        right_top = self.compute_right_top(depth_tensor, self.range_list[6])
+        bottom_left=self.compute_bottom_left(depth_tensor,self.range_list[6])
         rd_right_top=self.compute_rd_right_top(right_top,bottom_left)
-        rd_bottom_right=self.compute_rd_bottom_right(bottom_right,left_top)
-        rd_bottom_left=self.compute_rd_bottom_left(bottom_left,right_top)
+
+        right_top2 = self.compute_right_top(depth_tensor, self.range_list[7])
+        bottom_left2 = self.compute_bottom_left(depth_tensor, self.range_list[7])
+        rd_bottom_left=self.compute_rd_bottom_left(bottom_left2,right_top2)
 
 
         relative_depth_list=[rd_top,rd_right,rd_bottom,rd_left,rd_left_top,rd_right_top,rd_bottom_right,rd_bottom_left]

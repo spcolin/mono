@@ -4,8 +4,6 @@ test for resnet finetune
 
 import torch,torchvision,collections
 
-
-
 model=torchvision.models.resnet18(pretrained=False)
 
 pretrained_path="/home/colin/pretrained/resnet18-5c106cde.pth"
@@ -40,5 +38,12 @@ class Net(torch.nn.Module):
 net=Net(model)
 
 net.load_pretriained_backbone(pretrained_path)
+
+a=torch.randn(1,3,385,385)
+
+
+output=net(a)
+
+print(output.shape)
 
 

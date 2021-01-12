@@ -3,7 +3,7 @@ test for relative depth loss
 """
 
 
-import torch
+import torch,numpy
 from torchvision import transforms
 from PIL import Image
 from lib.models.RD_loss import RD_loss
@@ -22,6 +22,8 @@ simu_tensor=simu_tensor.unsqueeze(0).unsqueeze(0)
 
 
 
-rd_loss=RD_loss()
+rd_loss=RD_loss(3)
 
-loss=rd_loss(simu_tensor,simu_tensor)
+loss=rd_loss(simu_tensor,torch.randn(simu_tensor.shape))
+
+print(loss)
