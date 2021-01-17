@@ -8,7 +8,8 @@ from lib.models.VNL_loss import VNL_Loss
 from lib.models.image_transfer import bins_to_depth, kitti_merge_imgs
 from lib.core.config import cfg
 from lib.models.RD_loss import RD_loss
-from apex import amp
+from lib.models.refine_module import *
+
 
 
 class MetricDepthModel(nn.Module):
@@ -17,12 +18,21 @@ class MetricDepthModel(nn.Module):
         self.loss_names = ['Weighted_Cross_Entropy', 'Virtual_Normal']
         self.depth_model = DepthModel()
 
+        pretrained_path = "/home/colin/pretrained/resnet18-5c106cde.pth"
+        self.refine_model=Refine_module(pretrained_resnet18_path=pretrained_path)
+
+
     def forward(self, data):
         # Input data is a_real, predicted data is b_fake, groundtruth is b_real
         self.a_real = data['A'].cuda()
         # b_fake_softmax is the softmax of b_fake_logit
         self.b_fake_logit, self.b_fake_softmax = self.depth_model(self.a_real)
-        return {'b_fake_logit': self.b_fake_logit, 'b_fake_softmax': self.b_fake_softmax}
+
+        pred_depth=bins_to_depth(self.b_fake_softmax)
+
+        refined_depth=self.refine_model(pred_depth,self.a_real)
+
+        return {'b_fake_logit': self.b_fake_logit, 'b_fake_softmax': self.b_fake_softmax,"refined_depth":refined_depth}
 
     def inference(self, data):
         with torch.no_grad():

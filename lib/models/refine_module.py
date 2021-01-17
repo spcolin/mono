@@ -5,6 +5,7 @@ def conv_layer(in_channels,out_channels,kernel_size=3,stride=1,padding=1):
 
     return torch.nn.Sequential(
         torch.nn.Conv2d(in_channels, out_channels, kernel_size=kernel_size, stride=stride, padding=padding, bias=True),
+        torch.nn.BatchNorm2d(out_channels,affine=True,track_running_stats=True),
         torch.nn.LeakyReLU(negative_slope=0.01)
 
     )
@@ -40,7 +41,7 @@ class Residual(torch.nn.Module):
         self.up_layer5 = conv_layer(36, 16)
         self.up_layer6=torch.nn.Conv2d(16, 1, kernel_size=3, stride=1, padding=1, bias=False)
         # prediction layer
-        self.predict=torch.nn.Sigmoid()
+        self.predict=torch.nn.Tanh()
 
 
     def load_pretriained_backbone(self,path):
@@ -77,6 +78,8 @@ class Residual(torch.nn.Module):
         up = self.up_layer5(up) #B*16*416*416
         up = F.interpolate(up,size=(385,385), mode='bilinear', align_corners=True)  #B*16*385*385
         prediction=self.up_layer6(up)   #B*1*385*385
+
+        # scale the depth residual between -0.1 and 0.1
         prediction=self.predict(prediction)*0.1 #B*1*385*385
 
 
@@ -152,10 +155,12 @@ class Resample(torch.nn.Module):
         up = self.up_layer5(up) #B*16*416*416
         up = F.interpolate(up,size=(385,385), mode='bilinear', align_corners=True)  #B*16*385*385
         prediction=self.up_layer6(up)   #B*1*385*385
-        prediction=self.predict(prediction)*0.1 #B*1*385*385
 
+        # scale need to specify
+        prediction=self.predict(prediction) #B*1*385*385
 
-        return prediction.permute(0,2,3,1)
+        # the range size for sampling windows is 0 to 20
+        return prediction.permute(0,2,3,1)*20
 
 
 class Refine_module(torch.nn.Module):
@@ -164,46 +169,51 @@ class Refine_module(torch.nn.Module):
         super(Refine_module, self).__init__()
         self.residual_net=Residual(load_pretrained,pretrained_resnet18_path)
         self.resample_net=Resample(load_pretrained,pretrained_resnet18_path)
+        
+    def sample(self,grid,tensor):
+        batch_size=tensor.shape[0]
+        theta = torch.Tensor([[1, 0, 0],[0, 1, 0]])
+        theta=theta.expand(batch_size,2,3)
 
-    def forward(self,depth_tensor,img_tensor=None):
-        if img_tensor==None:
-            residual_input=depth_tensor
-        else:
-            residual_input=torch.cat((img_tensor,depth_tensor),1)
+        # values between -1 and 1
+        base_grid=torch.nn.functional.affine_grid(theta,size=tensor.shape)
+
+        final_grid=base_grid+grid/385.0
+
+        resampled_depth=torch.nn.functional.grid_sample(tensor,final_grid)
+
+        return resampled_depth
+
+
+    def forward(self,depth_tensor,img_tensor):
+
+        residual_input=torch.cat((img_tensor,depth_tensor),1)
 
         res=self.residual_net(residual_input)
-        compensate_res=depth_tensor+res
 
-        if img_tensor==None:
-            resample_input=compensate_res
-        else:
-            resample_input=torch.cat((img_tensor,compensate_res),1)
+        compensate_res_depth=depth_tensor+res
+
+        resample_input=torch.cat((img_tensor,compensate_res_depth),1)
 
         resample_grid=self.resample_net(resample_input)
 
-        # interpolation process to be completed
+        resampled_depth=self.sample(resample_grid,compensate_res_depth)
 
-
-
-        return None
-
-
+        return resampled_depth
 
 
 
 
+# pretrained_path="/home/colin/pretrained/resnet18-5c106cde.pth"
+#
+# refine_net=Refine_module(pretrained_resnet18_path=pretrained_path)
+#
+# dp=torch.randn(4,1,385,385)
+# rgb=torch.randn(4,3,385,385)
+#
+# output=refine_net(dp,rgb)
 
 
-pretrained_path="/home/colin/pretrained/resnet18-5c106cde.pth"
-
-# residual_module=Residual(pretrained_resnet18_path=pretrained_path)
-dsp_module=Resample(pretrained_resnet18_path=pretrained_path)
-
-input=torch.randn(3,4,385,385)
-
-output=dsp_module(input)
-
-print(output.shape)
 
 
 
