@@ -112,8 +112,8 @@ class ModelOptimizer(object):
              'lr': lr_decoder,
              'weight_decay': weight_decay},
             ]
-        self.optimizer = torch.optim.SGD(net_params, momentum=0.9)
-
+        # self.optimizer = torch.optim.SGD(net_params, momentum=0.9)
+        torch.optim.AdamW(net_params,betas=(0.9,0.99))
 
 
     def optim(self, loss):

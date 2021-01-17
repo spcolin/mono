@@ -8,7 +8,7 @@ class RD_loss(nn.Module):
 
     def __init__(self,range=3):
         super(RD_loss, self).__init__()
-        self.range_list=np.random.randint(1,range+1,size=8)
+        self.range=range
 
 
     def compute_left(self,tensor,range):
@@ -187,43 +187,43 @@ class RD_loss(nn.Module):
 
         return scaled_relative_depth
 
-    def compute_rd_map_list(self,depth_tensor):
+    def compute_rd_map_list(self,depth_tensor,range_list):
         """
         compute all the relative depth map of depth_tensor
         :param depth_tensor: the original depth map,B*1*H*W
         :return: a list containing all the relative depth map of depth tensor,in the order of [top,right,bottom,left,left top,right top,bottom right,bottom left]
         """
-        top=self.compute_top(depth_tensor,self.range_list[0])
-        bottom=self.compute_bottom(depth_tensor,self.range_list[0])
+        top=self.compute_top(depth_tensor,range_list[0])
+        bottom=self.compute_bottom(depth_tensor,range_list[0])
         rd_top = self.compute_rd_top(bottom, top)
 
-        top2 = self.compute_top(depth_tensor, self.range_list[1])
-        bottom2 = self.compute_bottom(depth_tensor, self.range_list[1])
+        top2 = self.compute_top(depth_tensor, range_list[1])
+        bottom2 = self.compute_bottom(depth_tensor, range_list[1])
         rd_bottom = self.compute_rd_bottom(top2, bottom2)
 
-        right=self.compute_right(depth_tensor,self.range_list[2])
-        left=self.compute_left(depth_tensor,self.range_list[2])
+        right=self.compute_right(depth_tensor,range_list[2])
+        left=self.compute_left(depth_tensor,range_list[2])
         rd_right = self.compute_rd_right(left, right)
 
-        right2 = self.compute_right(depth_tensor, self.range_list[3])
-        left2 = self.compute_left(depth_tensor, self.range_list[3])
+        right2 = self.compute_right(depth_tensor, range_list[3])
+        left2 = self.compute_left(depth_tensor, range_list[3])
         rd_left = self.compute_rd_left(left2, right2)
 
 
-        left_top=self.compute_left_top(depth_tensor,self.range_list[4])
-        bottom_right = self.compute_bottom_right(depth_tensor, self.range_list[4])
+        left_top=self.compute_left_top(depth_tensor,range_list[4])
+        bottom_right = self.compute_bottom_right(depth_tensor, range_list[4])
         rd_left_top = self.compute_rd_left_top(left_top, bottom_right)
 
-        left_top2 = self.compute_left_top(depth_tensor, self.range_list[5])
-        bottom_right2 = self.compute_bottom_right(depth_tensor, self.range_list[5])
+        left_top2 = self.compute_left_top(depth_tensor, range_list[5])
+        bottom_right2 = self.compute_bottom_right(depth_tensor, range_list[5])
         rd_bottom_right=self.compute_rd_bottom_right(left_top2,bottom_right2)
 
-        right_top = self.compute_right_top(depth_tensor, self.range_list[6])
-        bottom_left=self.compute_bottom_left(depth_tensor,self.range_list[6])
+        right_top = self.compute_right_top(depth_tensor, range_list[6])
+        bottom_left=self.compute_bottom_left(depth_tensor,range_list[6])
         rd_right_top=self.compute_rd_right_top(right_top,bottom_left)
 
-        right_top2 = self.compute_right_top(depth_tensor, self.range_list[7])
-        bottom_left2 = self.compute_bottom_left(depth_tensor, self.range_list[7])
+        right_top2 = self.compute_right_top(depth_tensor, range_list[7])
+        bottom_left2 = self.compute_bottom_left(depth_tensor, range_list[7])
         rd_bottom_left=self.compute_rd_bottom_left(bottom_left2,right_top2)
 
 
@@ -239,8 +239,10 @@ class RD_loss(nn.Module):
         :return: difference of relative depth map between pred and gt
         """
 
-        pred_rd_list=self.compute_rd_map_list(pred)
-        gt_rd_list=self.compute_rd_map_list(gt)
+        range_list=np.random.randint(1,self.range+1,size=8)
+
+        pred_rd_list=self.compute_rd_map_list(pred,range_list)
+        gt_rd_list=self.compute_rd_map_list(gt,range_list)
 
         loss_fn=torch.nn.L1Loss(reduction='mean')
         loss=0
