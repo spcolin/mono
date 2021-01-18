@@ -2,7 +2,7 @@ MODEL:
   INIT_TYPE: 'xavier'
   ENCODER: 'resnext101_32x4d_body_stride16'
   MODEL_REPOSITORY: '/datasets/pretrained_model'
-  PRETRAINED_WEIGHTS: '/home/colin/pretrained/resnext101_32x4d.pth'
+  PRETRAINED_WEIGHTS: 'E:/pretrained/resnext101_32x4d.pth'
   LOAD_IMAGENET_PRETRAINED_WEIGHTS: True
   RESNET_BOTTLENECK_DIM: [64, 256, 512, 1024, 2048]
   RESNET_BLOCK_DIM: [64, 64, 128, 256, 512]

@@ -1,21 +1,19 @@
 import torch.utils.data
 import importlib
 from lib.utils.logging import setup_logging
+from lib.core.config import cfg, merge_cfg_from_file, print_configs
 logger = setup_logging(__name__)
 
 class CustomerDataLoader():
     def __init__(self, opt):
         self.opt = opt
         self.dataset = create_dataset(opt)
-        train_sampler = torch.utils.data.distributed.DistributedSampler(self.dataset,shuffle=True)
         self.dataloader = torch.utils.data.DataLoader(
             self.dataset,
             batch_size=opt.batchsize,
-            # shuffle=True if 'train' in opt.phase else False,
-            # shuffle=False,
+            shuffle=True if 'train' in opt.phase else False,
             num_workers=opt.thread,
-        drop_last=True,
-        sampler=train_sampler)
+            drop_last=True)
 
     def load_data(self):
         return self

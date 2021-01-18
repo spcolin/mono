@@ -18,8 +18,8 @@ class MetricDepthModel(nn.Module):
         self.loss_names = ['Weighted_Cross_Entropy', 'Virtual_Normal']
         self.depth_model = DepthModel()
 
-        pretrained_path = "/home/colin/pretrained/resnet18-5c106cde.pth"
-        self.refine_model=Refine_module(pretrained_resnet18_path=pretrained_path)
+        # pretrained_path = "E:/pretrained/resnet18-5c106cde.pth"
+        # self.refine_model=Refine_module(pretrained_resnet18_path=pretrained_path)
 
 
     def forward(self, data):
@@ -28,11 +28,11 @@ class MetricDepthModel(nn.Module):
         # b_fake_softmax is the softmax of b_fake_logit
         self.b_fake_logit, self.b_fake_softmax = self.depth_model(self.a_real)
 
-        pred_depth=bins_to_depth(self.b_fake_softmax)
+        # pred_depth=bins_to_depth(self.b_fake_softmax)
+        #
+        # refined_depth=self.refine_model(pred_depth,self.a_real)
 
-        refined_depth=self.refine_model(pred_depth,self.a_real)
-
-        return {'b_fake_logit': self.b_fake_logit, 'b_fake_softmax': self.b_fake_softmax,"refined_depth":refined_depth}
+        return {'b_fake_logit': self.b_fake_logit, 'b_fake_softmax': self.b_fake_softmax}
 
     def inference(self, data):
         with torch.no_grad():
@@ -123,7 +123,7 @@ class ModelOptimizer(object):
              'weight_decay': weight_decay},
             ]
         # self.optimizer = torch.optim.SGD(net_params, momentum=0.9)
-        torch.optim.AdamW(net_params,betas=(0.9,0.99))
+        self.optimizer=torch.optim.AdamW(net_params,betas=(0.9,0.99))
 
 
     def optim(self, loss):

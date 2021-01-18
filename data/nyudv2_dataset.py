@@ -9,18 +9,21 @@ import torchvision.transforms as transforms
 from lib.utils.logging import setup_logging
 import time
 from functools import wraps
+from lib.core.config import cfg, merge_cfg_from_file, print_configs
+import lib.core.config
 
-def loop_until_success(func):
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        for i in range(600):
-            try:
-                ret = func(*args, **kwargs)
-                break
-            except OSError:
-                time.sleep(1)
-        return ret
-    return wrapper
+
+# def loop_until_success(func):
+#     @wraps(func)
+#     def wrapper(*args, **kwargs):
+#         for i in range(600):
+#             try:
+#                 ret = func(*args, **kwargs)
+#                 break
+#             except OSError:
+#                 time.sleep(1)
+#         return ret
+#     return wrapper
 
 
 
@@ -29,6 +32,10 @@ logger = setup_logging(__name__)
 
 class NYUDV2Dataset():
     def initialize(self, opt):
+        self.cfg=lib.core.config.cfg
+
+
+
         self.opt = opt
         self.root = opt.dataroot
         self.depth_normalize = 60000.
@@ -47,6 +54,8 @@ class NYUDV2Dataset():
         self.uniform_size = (427, 561)
 
     def getData(self):
+        # print(self.opt.phase_anno)
+        # print("type search:", type(cfg.DATASET.DEPTH_BIN_INTERVAL))
 
         # print(self.dir_anno)
         load_f=open(self.dir_anno, 'r')
@@ -88,8 +97,12 @@ class NYUDV2Dataset():
 
         return A_list, B_list, AB_anno
 
-    @loop_until_success
+    # @loop_until_success
     def __getitem__(self, anno_index):
+        # print("-------------------------in getitem-------------------------")
+        # print_configs(lib.core.config.cfg)
+        # print("-------------------------in getitem-------------------------")
+
         data = self.online_aug(anno_index)
         return data
 
@@ -99,6 +112,8 @@ class NYUDV2Dataset():
         in depth bins are set to cfg.MODEL.DECODER_OUTPUT_C + 1.
         :param anno_index: data index.
         """
+
+
         # A:rgb image B:ground truth depth
         A_path = self.A_paths[anno_index]
         B_path = self.B_paths[anno_index]
@@ -142,6 +157,7 @@ class NYUDV2Dataset():
         A_resize = self.scale_torch(A_resize, 255.)
         B_resize = self.scale_torch(B_resize, resize_ratio)
 
+
         B_bins = self.depth_to_bins(B_resize)
         invalid_side = [int(pad[0] * resize_ratio), 0, 0, 0]
 
@@ -158,6 +174,8 @@ class NYUDV2Dataset():
         Set flip, padding, reshaping, and cropping factors for the image.
         :return:
         """
+        cfg = self.cfg
+
         # flip
         flip_prob = np.random.uniform(0.0, 1.0)
         flip_flg = True if flip_prob > 0.5 and 'train' in self.opt.phase else False
@@ -204,6 +222,8 @@ class NYUDV2Dataset():
         :param pad_value: padding value
         :return:
         """
+        cfg = self.cfg
+
 
         # print(img.shape)
         # Flip
@@ -236,9 +256,14 @@ class NYUDV2Dataset():
         :param depth: 1-channel depth, [1, h, w]
         :return: depth bins [1, h, w]
         """
+        cfg = self.cfg
+
+
+        # print("depth type:",type(depth))
         invalid_mask = depth < 0.
         depth[depth < cfg.DATASET.DEPTH_MIN] = cfg.DATASET.DEPTH_MIN
         depth[depth > cfg.DATASET.DEPTH_MAX] = cfg.DATASET.DEPTH_MAX
+
 
         # calculate the bin for a certain depth value
         bins = ((torch.log10(depth) - cfg.DATASET.DEPTH_MIN_LOG) / cfg.DATASET.DEPTH_BIN_INTERVAL).to(torch.int)
@@ -267,10 +292,10 @@ class NYUDV2Dataset():
         img = img.astype(np.float32)
         img /= scale
         img = torch.from_numpy(img.copy())
-        # if img.size(0) == 3:
-        #     img = transforms.Normalize(cfg.DATASET.RGB_PIXEL_MEANS, cfg.DATASET.RGB_PIXEL_VARS)(img)
-        # else:
-        #     img = transforms.Normalize((0,), (1,))(img)
+        if img.size(0) == 3:
+            img = transforms.Normalize(cfg.DATASET.RGB_PIXEL_MEANS, cfg.DATASET.RGB_PIXEL_VARS)(img)
+        else:
+            img = transforms.Normalize((0,), (1,))(img)
         return img
 
     def __len__(self):

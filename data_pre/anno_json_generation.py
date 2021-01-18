@@ -44,12 +44,12 @@ def json_generate(data_path):
     return json_list
 
 
-path="/home/colin/p_nyu2/"
+path="E:/p_nyu2/"
 a=json_generate(path)
 
 print(len(a))
 
-saved_path="/home/colin/anno/train_annotations.json"
+saved_path="E:/anno/train_annotations.json"
 f=open(saved_path,'w')
 
 json.dump(a,f)

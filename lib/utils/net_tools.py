@@ -36,22 +36,19 @@ def load_ckpt(args, model, optimizer=None, scheduler=None, val_err=[]):
     """
     Load checkpoint.
     """
-    # print(os.path.isfile(args.load_ckpt))
     if os.path.isfile(args.load_ckpt):
         logger.info("loading checkpoint %s", args.load_ckpt)
         checkpoint = torch.load(args.load_ckpt, map_location=lambda storage, loc: storage, pickle_module=dill)
-        # checkpoint = torch.load(args.load_ckpt)
-
         model.load_state_dict(checkpoint['model_state_dict'])
         if args.resume:
             args.batchsize = checkpoint['batch_size']
             args.start_step = checkpoint['step']
             args.start_epoch = checkpoint['epoch']
             optimizer.load_state_dict(checkpoint['optimizer'])
-            for state in optimizer.state.values():
-                for k, v in state.items():
-                    if torch.is_tensor(v):
-                        state[k] = v.cuda()
+            # for state in optimizer.state.values():
+            #     for k, v in state.items():
+            #         if torch.is_tensor(v):
+            #             state[k] = v.cuda()
             scheduler.load_state_dict(checkpoint['scheduler'])
             if 'val_err' in checkpoint:  # For backward compatibility
                 val_err[0] = checkpoint['val_err']
@@ -73,7 +70,7 @@ def save_ckpt(args, step, epoch, model, optimizer, scheduler, val_err={}):
         'batch_size': args.batchsize,
         'scheduler': scheduler.state_dict(),
         'val_err': val_err,
-        'model_state_dict': model.module.state_dict(),
+        'model_state_dict': model.state_dict(),
         'optimizer': optimizer.state_dict()},
         save_name, pickle_module=dill)
     logger.info('save model: %s', save_name)
