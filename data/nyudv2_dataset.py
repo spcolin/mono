@@ -13,17 +13,17 @@ from lib.core.config import cfg, merge_cfg_from_file, print_configs
 import lib.core.config
 
 
-# def loop_until_success(func):
-#     @wraps(func)
-#     def wrapper(*args, **kwargs):
-#         for i in range(600):
-#             try:
-#                 ret = func(*args, **kwargs)
-#                 break
-#             except OSError:
-#                 time.sleep(1)
-#         return ret
-#     return wrapper
+def loop_until_success(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        for i in range(600):
+            try:
+                ret = func(*args, **kwargs)
+                break
+            except OSError:
+                time.sleep(1)
+        return ret
+    return wrapper
 
 
 
@@ -50,8 +50,7 @@ class NYUDV2Dataset():
         # print("-----")
         self.A_paths, self.B_paths, self.AB_anno = self.getData()
         self.data_size = len(self.AB_anno)
-        # self.uniform_size = (480, 640)
-        self.uniform_size = (427, 561)
+        self.uniform_size = (480, 640)
 
     def getData(self):
         # print(self.opt.phase_anno)
@@ -67,7 +66,7 @@ class NYUDV2Dataset():
         # print("-----")
 
         if 'dir_AB' in AB_anno[0].keys():
-            self.dir_AB = os.path.join(cfg.ROOT_DIR, self.opt.dataroot, self.opt.phase_anno, AB_anno[0]['dir_AB'])
+            self.dir_AB = os.path.join(self.cfg.ROOT_DIR, self.opt.dataroot, self.opt.phase_anno, AB_anno[0]['dir_AB'])
             # print(self.dir_AB)
             AB = sio.loadmat(self.dir_AB)
             # print(AB.keys())
@@ -85,8 +84,8 @@ class NYUDV2Dataset():
 
             #scale of depth
             self.depth_normalize=65535
-        A_list = [os.path.join(cfg.ROOT_DIR, self.opt.dataroot, self.opt.phase_anno, AB_anno[i]['rgb_path']) for i in range(len(AB_anno))]
-        B_list = [os.path.join(cfg.ROOT_DIR, self.opt.dataroot, self.opt.phase_anno, AB_anno[i]['depth_path']) for i in range(len(AB_anno))]
+        A_list = [os.path.join(self.cfg.ROOT_DIR, self.opt.dataroot, self.opt.phase_anno, AB_anno[i]['rgb_path']) for i in range(len(AB_anno))]
+        B_list = [os.path.join(self.cfg.ROOT_DIR, self.opt.dataroot, self.opt.phase_anno, AB_anno[i]['depth_path']) for i in range(len(AB_anno))]
         logger.info('Loaded NYUDV2 data!')
 
 
@@ -97,7 +96,7 @@ class NYUDV2Dataset():
 
         return A_list, B_list, AB_anno
 
-    # @loop_until_success
+    @loop_until_success
     def __getitem__(self, anno_index):
         # print("-------------------------in getitem-------------------------")
         # print_configs(lib.core.config.cfg)
@@ -180,8 +179,7 @@ class NYUDV2Dataset():
         flip_prob = np.random.uniform(0.0, 1.0)
         flip_flg = True if flip_prob > 0.5 and 'train' in self.opt.phase else False
 
-        # raw_size = np.array([cfg.DATASET.CROP_SIZE[1], 416, 448, 480, 512, 544, 576, 608, 640])
-        raw_size = np.array([cfg.DATASET.CROP_SIZE[1], 407, 429, 451, 473, 495, 517,539,561])
+        raw_size = np.array([cfg.DATASET.CROP_SIZE[1], 416, 448, 480, 512, 544, 576, 608, 640])
 
         size_index = np.random.randint(0, 9) if 'train' in self.opt.phase else 8
 
@@ -240,8 +238,8 @@ class NYUDV2Dataset():
                              constant_values=(pad_value, pad_value))
 
 
-        # Crop the resized image
-        img_crop = img_pad[crop_size[1]:crop_size[1] + crop_size[3], crop_size[0]:crop_size[0] + crop_size[2]]
+        # Crop the padded image
+        img_crop = img_pad[crop_size[1]:crop_size[1] + crop_size[2], crop_size[0]:crop_size[0] + crop_size[3]]
 
 
         # Resize the raw image
@@ -289,6 +287,7 @@ class NYUDV2Dataset():
         :param scale: the scale factor. float
         :return: img. [C, H, W]
         """
+        cfg=self.cfg
         img = img.astype(np.float32)
         img /= scale
         img = torch.from_numpy(img.copy())
