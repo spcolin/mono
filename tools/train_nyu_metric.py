@@ -95,6 +95,7 @@ if __name__=='__main__':
     # train_args.load_ckpt="/home/colin/papercode/VNL_Monocular_Depth_Prediction-master/tools/outputs/Jan05-08-40-33_colin-Alienware-Aurora-R7/ckpt/epoch0_step10.pth"
     # train_args.resume=True
 
+    merge_cfg_from_file(train_args)
 
 
     # Validation args
@@ -104,21 +105,16 @@ if __name__=='__main__':
     val_args.thread = 0
     # val_opt.print_options(val_args)
 
-    merge_cfg_from_file(train_args)
-
-
     train_dataloader = CustomerDataLoader(train_args)
     train_datasize = len(train_dataloader)
-    gpu_num = torch.cuda.device_count()
-
 
     val_dataloader = CustomerDataLoader(val_args)
     val_datasize = len(val_dataloader)
 
-
+    gpu_num = torch.cuda.device_count()
 
     # Print configs
-    # print_configs(cfg)
+    print_configs(cfg)
 
     # tensorboard logger
     if train_args.use_tfboard:
@@ -137,10 +133,8 @@ if __name__=='__main__':
     # load model
     model = MetricDepthModel()
     optimizer = ModelOptimizer(model)
-
-    # model = torch.nn.SyncBatchNorm.convert_sync_batchnorm(model)
-
-    # model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[local_rank])
+    if gpu_num>1:
+        model = torch.nn.SyncBatchNorm.convert_sync_batchnorm(model)
 
     if gpu_num != -1:
         logger.info('{:>15}: {:<30}'.format('GPU_num', gpu_num))

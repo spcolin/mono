@@ -9,7 +9,6 @@ import torchvision.transforms as transforms
 from lib.utils.logging import setup_logging
 import time
 from functools import wraps
-from lib.core.config import cfg, merge_cfg_from_file, print_configs
 import lib.core.config
 
 
@@ -32,9 +31,8 @@ logger = setup_logging(__name__)
 
 class NYUDV2Dataset():
     def initialize(self, opt):
+
         self.cfg=lib.core.config.cfg
-
-
 
         self.opt = opt
         self.root = opt.dataroot
@@ -53,6 +51,8 @@ class NYUDV2Dataset():
         self.uniform_size = (480, 640)
 
     def getData(self):
+
+        cfg=self.cfg
         # print(self.opt.phase_anno)
         # print("type search:", type(cfg.DATASET.DEPTH_BIN_INTERVAL))
 
@@ -66,7 +66,7 @@ class NYUDV2Dataset():
         # print("-----")
 
         if 'dir_AB' in AB_anno[0].keys():
-            self.dir_AB = os.path.join(self.cfg.ROOT_DIR, self.opt.dataroot, self.opt.phase_anno, AB_anno[0]['dir_AB'])
+            self.dir_AB = os.path.join(cfg.ROOT_DIR, self.opt.dataroot, self.opt.phase_anno, AB_anno[0]['dir_AB'])
             # print(self.dir_AB)
             AB = sio.loadmat(self.dir_AB)
             # print(AB.keys())
@@ -84,8 +84,9 @@ class NYUDV2Dataset():
 
             #scale of depth
             self.depth_normalize=65535
-        A_list = [os.path.join(self.cfg.ROOT_DIR, self.opt.dataroot, self.opt.phase_anno, AB_anno[i]['rgb_path']) for i in range(len(AB_anno))]
-        B_list = [os.path.join(self.cfg.ROOT_DIR, self.opt.dataroot, self.opt.phase_anno, AB_anno[i]['depth_path']) for i in range(len(AB_anno))]
+
+        A_list = [os.path.join(cfg.ROOT_DIR, self.opt.dataroot, self.opt.phase_anno, AB_anno[i]['rgb_path']) for i in range(len(AB_anno))]
+        B_list = [os.path.join(cfg.ROOT_DIR, self.opt.dataroot, self.opt.phase_anno, AB_anno[i]['depth_path']) for i in range(len(AB_anno))]
         logger.info('Loaded NYUDV2 data!')
 
 
@@ -255,7 +256,6 @@ class NYUDV2Dataset():
         :return: depth bins [1, h, w]
         """
         cfg = self.cfg
-
 
         # print("depth type:",type(depth))
         invalid_mask = depth < 0.
